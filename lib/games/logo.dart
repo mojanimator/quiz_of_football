@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -29,6 +27,7 @@ class Logo extends StatefulWidget {
 }
 
 class _LogoState extends State<Logo> {
+  bool lastQuestion = false;
   List<int> scores = List<int>();
   List<Color> buttonColors = [
     MyColors.primaryButton,
@@ -41,7 +40,10 @@ class _LogoState extends State<Logo> {
 
   int currentQuestion;
 
+  bool lockClick = false;
+
   void initState() {
+    print("initLogo");
     rounds = widget.p1Status.length;
     currentQuestion = rounds;
     for (int i = 0; i < rounds; i++) {
@@ -126,14 +128,19 @@ class _LogoState extends State<Logo> {
                                 decoration: BoxDecoration(
                                     shape: BoxShape.rectangle,
                                     borderRadius: BorderRadius.circular(20.0)),
-                                child: TransitionToImage(
-                                  image: AdvancedNetworkImage(
-                                      widget.vsGame.questions[currentQuestion]
-                                          ['path'],
-                                      fallbackAssetImage: "images/logo/11.jpg",
-                                      retryLimit: 1,
-                                      timeoutDuration: Duration(seconds: 5)),
-                                )),
+                                child: currentQuestion < rounds
+                                    ? TransitionToImage(
+                                        image: AdvancedNetworkImage(
+                                            widget.vsGame
+                                                    .questions[currentQuestion]
+                                                ['path'],
+                                            fallbackAssetImage:
+                                                "images/logo/11.jpg",
+                                            retryLimit: 1,
+                                            timeoutDuration:
+                                                Duration(seconds: 5)),
+                                      )
+                                    : null),
                           ),
                           Expanded(
                             child: Padding(
@@ -169,14 +176,18 @@ class _LogoState extends State<Logo> {
                                           _updateGame(index);
                                         },
                                         child: Center(
-                                            child: Text(
-                                          index <= 2
-                                              ? widget.vsGame.questions[
-                                                      currentQuestion]['opts']
-                                                  [index]
-                                              : "Skip",
-                                          style: MyStyles.timeTextStyle,
-                                        )),
+                                            child: currentQuestion < rounds
+                                                ? Text(
+                                                    index <= 2
+                                                        ? widget.vsGame
+                                                                    .questions[
+                                                                currentQuestion]
+                                                            ['opts'][index]
+                                                        : "Skip",
+                                                    style:
+                                                        MyStyles.timeTextStyle,
+                                                  )
+                                                : null),
                                       ),
                                     ),
                                   );
@@ -199,13 +210,20 @@ class _LogoState extends State<Logo> {
   }
 
   void _updateGame(int idx) async {
+    if (lockClick)
+      return;
+    else
+      lockClick = true;
     var response = await Functions.gameUpdate(context, {
       'vsgame_id': widget.vsGame.id.toString(),
       'player_id': widget.player1.id.toString(),
       'question_number': currentQuestion.toString(),
       'user_response': idx.toString()
     });
-    if (response == null) return;
+    if (response == null) {
+      lockClick = false;
+      return;
+    }
     if (response['status'] == "ok") {
       //correct answer
       if (response['data'] == idx) {
@@ -214,7 +232,6 @@ class _LogoState extends State<Logo> {
           buttonColors[1] = MyColors.primaryButton;
           buttonColors[2] = MyColors.primaryButton;
           buttonColors[idx] = MyColors.answerCorrect;
-          sleep(Duration(seconds: 1));
         });
       } //correct answer
       else {
@@ -224,24 +241,33 @@ class _LogoState extends State<Logo> {
         });
       }
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        setState(() {
-          if (currentQuestion + 1 == rounds) {
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        while (!lastQuestion && widget.p1Status[currentQuestion] != null) {
+          currentQuestion++;
+          if (currentQuestion + 1 >= rounds) lastQuestion = true;
+          continue;
+        }
+//        print("$currentQuestion,$lastQuestion,${widget.p1Status}");
+        if (lastQuestion && response['result'] != null) {
+          setState(() {
             widget.p1Status = response['result']['p1_status'];
             widget.p2Status = response['result']['p2_status'];
-
-            Navigator.pop(context, [widget.p1Status, widget.p2Status]);
-          } else {
-            while (widget.p1Status[++currentQuestion] != null) continue;
-
+          });
+          Navigator.pop(context, [widget.p1Status, widget.p2Status]);
+        } else {
+          setState(() {
+            currentQuestion++;
+            if (currentQuestion + 1 >= rounds) lastQuestion = true;
             buttonColors[0] = MyColors.primaryButton;
             buttonColors[1] = MyColors.primaryButton;
             buttonColors[2] = MyColors.primaryButton;
-          }
-        });
+          });
+        }
+        lockClick = false;
       });
-//      print(widget.vsGame.questions[0]);
     }
+
+//      print(widget.vsGame.questions[0]);
   }
 }
 

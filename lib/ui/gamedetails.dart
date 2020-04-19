@@ -36,6 +36,7 @@ class _GameDetailsState extends State<GameDetails> {
       setState(() {
         p1_Status = value[0];
         p2_Status = value[1];
+
         gameState = getGameState(p1_Status);
       });
     });
