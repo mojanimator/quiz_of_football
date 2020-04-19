@@ -52,6 +52,7 @@ class _LogoState extends State<Logo> {
         break;
       }
     }
+    if (currentQuestion + 1 >= rounds) lastQuestion = true;
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       setState(() {});

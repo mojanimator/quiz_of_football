@@ -92,7 +92,7 @@ class Functions {
       ).then((http.Response response) async {
         if (response.statusCode != 200) return null;
 
-        print(response.body);
+//        print(response.body);
         return json.decode(response.body);
       }, onError: (e) {
 //        showMessage(context, "Check Your Internet Connection And Try Again !");

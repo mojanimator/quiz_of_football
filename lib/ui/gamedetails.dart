@@ -21,7 +21,9 @@ class GameDetails extends StatefulWidget {
 
 class _GameDetailsState extends State<GameDetails> {
   User player1, player2;
-  List<dynamic> p1_Status, p2_Status;
+  List<dynamic> p1Status, p2Status;
+  int p1Score = 0;
+  int p2Score = 0;
 
   String gameState;
 
@@ -32,12 +34,17 @@ class _GameDetailsState extends State<GameDetails> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                Logo(vsGame, player1, p1_Status, p2_Status))).then((value) {
+                Logo(vsGame, player1, p1Status, p2Status))).then((value) {
       setState(() {
-        p1_Status = value[0];
-        p2_Status = value[1];
-
-        gameState = getGameState(p1_Status);
+        p1Status = value[0];
+        p2Status = value[1];
+        for (int s in p1Status) {
+          if (s != null) p1Score += s;
+        }
+        for (int s in p2Status) {
+          if (s != null) p2Score += s;
+        }
+        gameState = getGameState(p1Status);
       });
     });
   }
@@ -53,15 +60,22 @@ class _GameDetailsState extends State<GameDetails> {
     if (widget.vsGame.p1_id == widget.me_id) {
       player1 = widget.vsGame.player1;
       player2 = widget.vsGame.player2;
-      p1_Status = widget.vsGame.p1_status;
-      p2_Status = widget.vsGame.p2_status;
+      p1Status = widget.vsGame.p1_status;
+      p2Status = widget.vsGame.p2_status;
     } else {
       player2 = widget.vsGame.player1;
       player1 = widget.vsGame.player2;
-      p2_Status = widget.vsGame.p1_status;
-      p1_Status = widget.vsGame.p2_status;
+      p2Status = widget.vsGame.p1_status;
+      p1Status = widget.vsGame.p2_status;
     }
-    gameState = getGameState(p1_Status);
+    for (int s in p1Status) {
+      if (s != null) p1Score += s;
+    }
+    for (int s in p2Status) {
+      if (s != null) p2Score += s;
+    }
+
+    gameState = getGameState(p1Status);
     SchedulerBinding.instance.addPostFrameCallback((_) {
 //      widget.vsGame = Functions.findGamer(context, {'game_id': '1'});
 //      _startGame(widget.vsGame);
@@ -165,7 +179,7 @@ class _GameDetailsState extends State<GameDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Column(
-                                children: p1_Status
+                                children: p1Status
                                     .map(
                                       (e) => Container(
                                         height: 25,
@@ -190,7 +204,7 @@ class _GameDetailsState extends State<GameDetails> {
 //                            color: Colors.white,
 //                          ),
                             Column(
-                                children: p2_Status
+                                children: p2Status
                                     .map(
                                       (e) => Container(
                                         height: 25,
@@ -229,6 +243,36 @@ class _GameDetailsState extends State<GameDetails> {
               color: MyColors.darkContainer,
               child: Column(
                 children: [
+                  //scores text
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Center(
+                        child: Text(
+                      "Scores",
+                      style: MyStyles.profileTextStyle,
+                    )),
+                  ),
+//                  scores row
+                  Container(
+                    padding: EdgeInsets.only(bottom: 5.0),
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(p1Score.toString(),
+                            style: MyStyles.profileTextStyle),
+                        VerticalDivider(
+                          width: 5.0,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          p2Score.toString(),
+                          style: MyStyles.profileTextStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                  //button
                   Container(
                     width: MediaQuery.of(context).size.width * 4 / 5,
                     height: MediaQuery.of(context).size.height * 1 / 8,

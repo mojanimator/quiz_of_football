@@ -342,15 +342,28 @@ class _GameStatusState extends State<GameStatus> {
   _findPlayer() async {
     VSGame _vsGame = await Functions.findGamer(context, {"game_id": "1"});
 
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => GameDetails(_vsGame, me.id)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => GameDetails(_vsGame, me.id))).then((val) {
+      setState(() {
+        print("refresh");
+        _refreshData();
+      });
+    });
   }
 
   _findLeague() {}
 
   _openVSGame(VSGame vsGame) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => GameDetails(vsGame, me.id)));
+            MaterialPageRoute(builder: (context) => GameDetails(vsGame, me.id)))
+        .then((val) {
+      setState(() {
+        print("refresh");
+        _refreshData();
+      });
+    });
   }
 
   List<Widget> gameRows(List<VSGame> vsGames) {
