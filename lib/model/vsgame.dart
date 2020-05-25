@@ -14,6 +14,8 @@ class VSGame {
 //  final String p2_username;
   final List<dynamic> p1_status;
   final List<dynamic> p2_status;
+  final Map<String, dynamic> p1_help;
+  final Map<String, dynamic> p2_help;
   final int rounds;
   final List<dynamic> questions;
   final String start_time;
@@ -38,6 +40,8 @@ class VSGame {
     this.created_at,
     this.player1,
     this.player2,
+    this.p1_help,
+    this.p2_help,
   );
 
   VSGame.fromJson(Map<String, dynamic> json)
@@ -50,6 +54,8 @@ class VSGame {
         p1_done = json['p1_done'] as bool,
         p2_done = json['p2_done'] as bool,
         questions = converter.json.decode(json['questions']),
+        p1_help = converter.json.decode(json['p1_help']),
+        p2_help = converter.json.decode(json['p2_help']),
 //        questions = json['questions'],
 //        p1_username = json['p1_username'],
 //        p2_username = json['p2_username'],

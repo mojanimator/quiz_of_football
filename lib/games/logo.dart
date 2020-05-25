@@ -124,6 +124,7 @@ class _LogoState extends State<Logo> {
                       child: Column(
                         children: <Widget>[
                           Expanded(
+                            flex: 2,
                             child: Container(
                                 padding: EdgeInsets.all(10.0),
                                 decoration: BoxDecoration(
@@ -144,6 +145,7 @@ class _LogoState extends State<Logo> {
                                     : null),
                           ),
                           Expanded(
+                            flex: 3,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: GridView.builder(
@@ -195,7 +197,23 @@ class _LogoState extends State<Logo> {
                                 },
                               ),
                             ),
-                          )
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                FlatButton(
+                                  child: Icon(Icons.lightbulb_outline),
+                                  onPressed: () {},
+                                ),
+                                FlatButton(
+                                  child: Icon(Icons.remove_circle),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
